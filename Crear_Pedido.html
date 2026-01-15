@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creación de Pedido ANDINA</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f7f6; margin: 0; }
+        h2 { color: #2D68C4; margin-bottom: 20px; text-align: center; }
+        .card { width: 100%; max-width: 420px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .field { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; font-size: 14px; }
+        select, textarea { width: 100%; padding: 12px; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 14px; background: #2D68C4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        #mensaje-exito { display: none; margin-top: 20px; padding: 15px; background-color: #d4edda; color: #155724; border-radius: 8px; text-align: center; width: 100%; max-width: 420px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>CREACIÓN DE PEDIDO</h2>
+
+        <form id="formPedido" target="hidden_iframe" method="POST" action="https://script.google.com/macros/s/AKfycbxwmzPhKUcKC6O_VGc5i6fFNkxwjMe5AfhZw3Gohi6Zi_bVh-ArJgmzOXK-wJdcDdVkag/exec">
+            <div class="field">
+                <label>Cliente:</label>
+                <select id="listaClientes" name="cliente" required>
+                    <option value="">Cargando clientes...</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Detalles del Pedido:</label>
+                <textarea name="detalles" rows="4" placeholder="Productos, cantidades, etc..." required></textarea>
+            </div>
+
+            <button type="submit">Registrar Pedido</button>
+        </form>
+    </div>
+
+    <div id="mensaje-exito"></div>
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(sent) { finalizarRegistro(); }"></iframe>
+
+    <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz1YWXQYn0IjONyQ3p0lubitz7l5JgnqTxupzZBGy8_MMDYYwM5OwMi6N8kL6A_VijWog/exec';
+    let sent = false;
+
+    // Esta función se ejecuta automáticamente cuando Google responde
+    function cargarClientes(nombres) {
+        const select = document.getElementById('listaClientes');
+        select.innerHTML = '<option value="">Seleccione un cliente...</option>';
+        
+        nombres.forEach(nombre => {
+            let opt = document.createElement('option');
+            opt.value = nombre;
+            opt.text = nombre;
+            select.appendChild(opt);
+        });
+    }
+
+    // Al cargar la página, pedimos los datos a Google usando JSONP
+    window.onload = function() {
+        const script = document.createElement('script');
+        script.src = scriptURL + '?callback=cargarClientes';
+        document.body.appendChild(script);
+    };
+
+    const form = document.getElementById('formPedido');
+    form.onsubmit = function() { sent = true; };
+
+    function finalizarRegistro() {
+        const mensajeDiv = document.getElementById('mensaje-exito');
+        mensajeDiv.style.display = "block";
+        mensajeDiv.innerHTML = `Pedido registrado correctamente en la base de datos.`;
+        form.reset();
+        sent = false;
+        setTimeout(() => { mensajeDiv.style.display = "none"; }, 5000);
+    }
+</script>
+</body>
+</html>

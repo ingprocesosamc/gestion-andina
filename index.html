@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - ANDINA</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px; 
+            background-color: #f4f7f6; 
+            margin: 0;
+        }
+
+        h1 { 
+            color: #2D68C4; 
+            margin-bottom: 10px; 
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        p {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .menu-container { 
+            width: 100%; 
+            max-width: 420px; 
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Espacio entre botones */
+        }
+
+        .btn-menu { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; 
+            background: white; 
+            color: #2D68C4; 
+            text-decoration: none;
+            border: 2px solid #2D68C4;
+            border-radius: 12px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Efecto al pasar el mouse o tocar en el celular */
+        .btn-menu:hover { 
+            background: #2D68C4; 
+            color: white; 
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(45, 104, 196, 0.2);
+        }
+
+        .btn-menu:active {
+            transform: translateY(0px);
+        }
+
+        .icon {
+            margin-right: 15px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>GESTIÓN ANDINA</h1>
+    <p>Seleccione la operación que desea realizar:</p>
+
+    <div class="menu-container">
+        <a href="Crear_Cliente.html" class="btn-menu">
+            <span class="icon">👤</span> 
+            CREAR NUEVO CLIENTE
+        </a>
+
+        <a href="Crear_Pedido.html" class="btn-menu">
+            <span class="icon">📝</span> 
+            CREAR NUEVO PEDIDO
+        </a>
+    </div>
+
+</body>
+</html>
