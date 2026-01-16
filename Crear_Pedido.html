@@ -2,79 +2,197 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creación de Pedido ANDINA</title>
+    <title>Pedidos ANDINA - Completo</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f7f6; margin: 0; }
-        h2 { color: #2D68C4; margin-bottom: 20px; text-align: center; }
-        .card { width: 100%; max-width: 420px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
-        .field { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; font-size: 14px; }
-        select, textarea { width: 100%; padding: 12px; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 14px; background: #2D68C4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        #mensaje-exito { display: none; margin-top: 20px; padding: 15px; background-color: #d4edda; color: #155724; border-radius: 8px; text-align: center; width: 100%; max-width: 420px; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; }
+        .card { width: 100%; max-width: 1300px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #2D68C4; text-align: center; margin-bottom: 5px; }
+        .consecutivo { color: #7f8c8d; text-align: center; font-weight: bold; margin-bottom: 20px; }
+        .header-grid { display: grid; grid-template-columns: 1fr 2fr 1.2fr; gap: 20px; align-items: start; margin-bottom: 20px; border-bottom: 2px solid #f4f7f6; padding-bottom: 20px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; color: #34495e; font-size: 12px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #dcdde1; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        #info-cliente { display: none; background: #ebf2ff; padding: 12px; border-radius: 8px; border: 1px solid #2D68C4; font-size: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .item-row { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #dee2e6; position: relative; display: flex; flex-direction: column; gap: 10px; }
+        .row-group { display: grid; gap: 10px; align-items: end; }
+        .grid-f1 { grid-template-columns: 1.2fr 2fr 0.6fr 1fr 0.8fr 0.8fr; }
+        .grid-f2 { grid-template-columns: 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 1fr; border-top: 1px dashed #ccc; padding-top: 10px; }
+        .btn { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 10px; color: white; transition: 0.3s; }
+        .btn-blue { background: #2D68C4; width: 100%; margin-top: 20px; font-size: 16px; }
+        .btn-add { background: #27ae60; width: 220px; margin: 10px 0; }
+        .btn-remove { background: #e74c3c; position: absolute; top: 5px; right: 5px; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .total-box { margin-top: 10px; padding: 10px 20px; background: #f8f9fa; border-radius: 8px; text-align: right; border: 1px solid #ddd; }
+        .total-box div { margin: 5px 0; font-size: 1.1rem; color: #34495e; }
+        .final-total { font-size: 1.6rem !important; color: #2D68C4 !important; font-weight: bold; border-top: 2px solid #2D68C4; padding-top: 5px; }
     </style>
 </head>
 <body>
 
+    <h2>CREACIÓN DE PEDIDO</h2>
+    <div class="consecutivo">Pedido N° <span id="n-pedido">...</span></div>
+
     <div class="card">
-        <h2>CREACIÓN DE PEDIDO</h2>
-
-        <form id="formPedido" target="hidden_iframe" method="POST" action="https://script.google.com/macros/s/AKfycbxwmzPhKUcKC6O_VGc5i6fFNkxwjMe5AfhZw3Gohi6Zi_bVh-ArJgmzOXK-wJdcDdVkag/exec">
-            <div class="field">
-                <label>Cliente:</label>
-                <select id="listaClientes" name="cliente" required>
-                    <option value="">Cargando clientes...</option>
-                </select>
+        <form id="formPedido">
+            <div class="header-grid">
+                <div>
+                    <label>Documento Cliente:</label>
+                    <input type="number" id="doc_cliente" placeholder="NIT / CC">
+                    <button type="button" class="btn" style="background:#2D68C4; width:100%; margin-top:8px;" onclick="buscarCliente()">Consultar Cliente</button>
+                </div>
+                <div id="info-cliente" style="display: none;">
+                    <div style="grid-column: span 2;"><strong>Razón Social:</strong> <span id="res-nombre"></span></div>
+                    <div><strong>Tipo Doc:</strong> <span id="res-tipo"></span></div>
+                    <div><strong>Ciudad:</strong> <span id="res-ciudad"></span></div>
+                    <div><strong>Teléfono:</strong> <span id="res-tel"></span></div>
+                    <div><strong>Requiere OC:</strong> <span id="res-oc-req"></span></div>
+                    <div style="grid-column: span 2;"><strong>Correo:</strong> <span id="res-correo"></span></div>
+                    <input type="hidden" id="razon_social_hidden">
+                </div>
+                <div id="placeholder-cliente" style="text-align:center; color:#999; padding-top:20px;">Esperando consulta...</div>
+                <div>
+                    <label>Orden de Compra:</label>
+                    <input type="text" id="input_oc" placeholder="Número de OC" style="margin-bottom:10px;">
+                    <label>Impuesto:</label>
+                    <select id="select_impuesto" onchange="calcularTotales()"><option value="No Aplica">No Aplica</option></select>
+                </div>
             </div>
 
-            <div class="field">
-                <label>Detalles del Pedido:</label>
-                <textarea name="detalles" rows="4" placeholder="Productos, cantidades, etc..." required></textarea>
+            <label style="font-size: 15px; color: #2D68C4; margin-bottom: 15px;">Detalle de Servicios</label>
+            <div id="lista-servicios"></div>
+            
+            <div style="text-align: center;">
+                <button type="button" class="btn btn-add" id="btnAddRow" onclick="agregarFila()" disabled>+ Agregar Servicio</button>
             </div>
 
-            <button type="submit">Registrar Pedido</button>
+            <div class="total-box">
+                <div>SUBTOTAL: <span id="subtotal-display">$ 0</span></div>
+                <div>IMPUESTO: <span id="impuesto-display">$ 0</span></div>
+                <div class="final-total">TOTAL: <span id="total-final-display">$ 0</span></div>
+            </div>
+
+            <button type="button" id="btnRegistrar" class="btn btn-blue" onclick="enviarPedidoFinal()">REGISTRAR PEDIDO</button>
         </form>
     </div>
 
-    <div id="mensaje-exito"></div>
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(sent) { finalizarRegistro(); }"></iframe>
-
     <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz1YWXQYn0IjONyQ3p0lubitz7l5JgnqTxupzZBGy8_MMDYYwM5OwMi6N8kL6A_VijWog/exec';
-    let sent = false;
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxjKFJxFsR6GwPL1CFGZ9ipG7XUqv5ZuA-FCKhmgF9jxe1KxsWBjtAujLAUnTipOtQqQg/exec'; 
+        let h_servicios = "", h_medidas = "", h_tipos = "", h_durezas = "";
+        let valSubtotal = 0, valImpuesto = 0, valTotalFinal = 0;
 
-    // Esta función se ejecuta automáticamente cuando Google responde
-    function cargarClientes(nombres) {
-        const select = document.getElementById('listaClientes');
-        select.innerHTML = '<option value="">Seleccione un cliente...</option>';
-        
-        nombres.forEach(nombre => {
-            let opt = document.createElement('option');
-            opt.value = nombre;
-            opt.text = nombre;
-            select.appendChild(opt);
-        });
-    }
+        window.onload = () => {
+            llamarGoogle('getUltimo', '', 'mostrarConsecutivo');
+            llamarGoogle('getListas', '', 'cargarListas');
+        };
 
-    // Al cargar la página, pedimos los datos a Google usando JSONP
-    window.onload = function() {
-        const script = document.createElement('script');
-        script.src = scriptURL + '?callback=cargarClientes';
-        document.body.appendChild(script);
-    };
+        function mostrarConsecutivo(n) { document.getElementById('n-pedido').innerText = n; }
 
-    const form = document.getElementById('formPedido');
-    form.onsubmit = function() { sent = true; };
+        function cargarListas(res) {
+            if (res && !res.error) {
+                h_servicios = res.servicios.map(s => `<option value="${s}">${s}</option>`).join('');
+                h_medidas = res.medidas.map(m => `<option value="${m}">${m}</option>`).join('');
+                h_tipos = res.tipos.map(t => `<option value="${t}">${t}</option>`).join('');
+                h_durezas = res.durezas.map(d => `<option value="${d}">${d}</option>`).join('');
+                document.getElementById('select_impuesto').innerHTML = res.impuestos.map(i => `<option value="${i}">${i}</option>`).join('');
+            }
+            document.getElementById('btnAddRow').disabled = false;
+            agregarFila(); 
+        }
 
-    function finalizarRegistro() {
-        const mensajeDiv = document.getElementById('mensaje-exito');
-        mensajeDiv.style.display = "block";
-        mensajeDiv.innerHTML = `Pedido registrado correctamente en la base de datos.`;
-        form.reset();
-        sent = false;
-        setTimeout(() => { mensajeDiv.style.display = "none"; }, 5000);
-    }
-</script>
+        function agregarFila() {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `
+                <button type="button" class="btn btn-remove" onclick="this.parentElement.remove(); calcularTotales();">×</button>
+                <div class="row-group grid-f1">
+                    <div><label>Servicio</label><select class="srv-nombre"><option value="">...</option>${h_servicios}</select></div>
+                    <div><label>Descripción</label><input type="text" class="srv-desc"></div>
+                    <div><label>Cant</label><input type="number" class="srv-cant" oninput="calcularTotales()" value="0"></div>
+                    <div><label>Tipo</label><select class="srv-tipo"><option value="">...</option>${h_tipos}</select></div>
+                    <div><label>Eje</label><input type="text" class="srv-eje"></div>
+                    <div><label>Med. Eje</label><select class="srv-medida-eje"><option value="">...</option>${h_medidas}</select></div>
+                </div>
+                <div class="row-group grid-f2">
+                    <div><label>Dimensión</label><input type="text" class="srv-dim"></div>
+                    <div><label>Med. Dim.</label><select class="srv-medida-dim"><option value="">...</option>${h_medidas}</select></div>
+                    <div><label>Longitud</label><input type="text" class="srv-long"></div>
+                    <div><label>Med. Long.</label><select class="srv-medida-long"><option value="">...</option>${h_medidas}</select></div>
+                    <div><label>Dureza</label><select class="srv-dureza"><option value="">...</option>${h_durezas}</select></div>
+                    <div><label>V. Unit ($)</label><input type="number" class="srv-valor" oninput="calcularTotales()" value="0"></div>
+                    <div><label>Subtotal Ítem</label><input type="text" class="srv-total-fila" readonly value="$ 0"></div>
+                </div>`;
+            document.getElementById('lista-servicios').appendChild(div);
+        }
+
+        function calcularTotales() {
+            valSubtotal = 0;
+            document.querySelectorAll('.item-row').forEach(f => {
+                const sub = (parseFloat(f.querySelector('.srv-cant').value) || 0) * (parseFloat(f.querySelector('.srv-valor').value) || 0);
+                f.querySelector('.srv-total-fila').value = "$ " + sub.toLocaleString('es-CO');
+                valSubtotal += sub;
+            });
+
+            const impSel = document.getElementById('select_impuesto').value;
+            let porcentaje = 0;
+            if (impSel !== "No Aplica") {
+                porcentaje = parseFloat(impSel.replace('%','')) / 100 || 0;
+            }
+            
+            valImpuesto = valSubtotal * porcentaje;
+            valTotalFinal = valSubtotal + valImpuesto;
+
+            document.getElementById('subtotal-display').innerText = "$ " + valSubtotal.toLocaleString('es-CO');
+            document.getElementById('impuesto-display').innerText = "$ " + valImpuesto.toLocaleString('es-CO');
+            document.getElementById('total-final-display').innerText = "$ " + valTotalFinal.toLocaleString('es-CO');
+        }
+
+        function buscarCliente() {
+            const doc = document.getElementById('doc_cliente').value;
+            if(doc) llamarGoogle('consultar', `&documento=${doc}`, 'procesarCliente');
+        }
+
+        function procesarCliente(d) {
+            if (d && d.nombre) {
+                document.getElementById('placeholder-cliente').style.display = 'none';
+                document.getElementById('info-cliente').style.display = 'grid';
+                document.getElementById('res-nombre').innerText = d.nombre;
+                document.getElementById('res-tipo').innerText = d.tipoDoc;
+                document.getElementById('res-ciudad').innerText = d.ciudad;
+                document.getElementById('res-tel').innerText = d.telefono;
+                document.getElementById('res-correo').innerText = d.correo;
+                document.getElementById('res-oc-req').innerText = d.requiereOC;
+                document.getElementById('razon_social_hidden').value = d.nombre;
+            } else { alert("Cliente no encontrado"); }
+        }
+
+        function enviarPedidoFinal() {
+            const cliente = document.getElementById('razon_social_hidden').value;
+            if(!cliente) return alert("Consulte un cliente primero.");
+
+            let itemsStr = "";
+            document.querySelectorAll('.item-row').forEach(f => {
+                const s = f.querySelector('.srv-nombre').value;
+                if(s && f.querySelector('.srv-cant').value > 0) {
+                    const filaData = [s, f.querySelector('.srv-desc').value, f.querySelector('.srv-cant').value, f.querySelector('.srv-tipo').value, f.querySelector('.srv-eje').value, f.querySelector('.srv-medida-eje').value, f.querySelector('.srv-dim').value, f.querySelector('.srv-medida-dim').value, f.querySelector('.srv-long').value, f.querySelector('.srv-medida-long').value, f.querySelector('.srv-dureza').value, f.querySelector('.srv-valor').value];
+                    itemsStr += filaData.join(',') + '|';
+                }
+            });
+
+            if(!itemsStr) return alert("Agregue servicios.");
+            
+            const btn = document.getElementById('btnRegistrar');
+            btn.disabled = true; btn.innerText = "Registrando...";
+            
+            const params = `&documento=${document.getElementById('doc_cliente').value}&cliente=${encodeURIComponent(cliente)}&orden_compra=${encodeURIComponent(document.getElementById('input_oc').value)}&servicios_consolidado=${encodeURIComponent(itemsStr)}&subtotal=${valSubtotal}&valorImpuesto=${valImpuesto}&pctImpuesto=${encodeURIComponent(document.getElementById('select_impuesto').value)}&totalFinal=${valTotalFinal}`;
+            
+            llamarGoogle('registrar', params, 'confirmar');
+        }
+
+        function confirmar() { alert("✅ Pedido registrado con éxito."); location.reload(); }
+
+        function llamarGoogle(action, extra, callback) {
+            const script = document.createElement('script');
+            script.src = `${scriptURL}?action=${action}&callback=${callback}${extra}&v=${Date.now()}`;
+            document.body.appendChild(script);
+        }
+    </script>
 </body>
 </html>
