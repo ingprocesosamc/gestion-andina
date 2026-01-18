@@ -3,186 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creación de Clientes ANDINA</title>
+    <title>Gestión de Clientes ANDINA</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 15px; 
-            background-color: #f4f7f6; 
-            margin: 0;
-        }
-
-        h2 { color: #2D68C4; margin-bottom: 20px; text-align: center; font-size: 1.5rem; }
-
-        /* Ajuste responsivo para la tarjeta */
-        .card { 
-            width: 100%; 
-            max-width: 420px; /* Se queda en este tamaño en PC, pero se encoge en celular */
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            box-sizing: border-box; /* Asegura que el padding no desborde el ancho */
-        }
-
-        .field { margin-bottom: 15px; }
-
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: bold; 
-            color: #34495e; 
-            font-size: 14px; 
-        }
-
-        /* Campos más grandes para facilitar el toque táctil */
-        input, select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #dcdde1; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-size: 16px; /* Evita que el iPhone haga zoom automático al enfocar */
-        }
-
-        button { 
-            width: 100%; 
-            padding: 14px; 
-            background: #2D68C4; 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: bold; 
-            margin-top: 10px;
-            transition: background 0.3s ease;
-        }
-
-        button:hover { background: #1a4a8c; }
-        button:active { background: #219150; } /* Efecto visual al tocar en móvil */
-
-        /* Mensaje de éxito responsivo */
-        #mensaje-exito { 
-            display: none; 
-            margin-top: 20px; 
-            padding: 15px; 
-            background-color: #d4edda; 
-            color: #155724; 
-            border: 1px solid #c3e6cb; 
-            border-radius: 8px; 
-            text-align: center; 
-            width: 100%;
-            max-width: 420px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-
-        /* Ajustes extra para pantallas muy pequeñas */
-        @media (max-width: 360px) {
-            h2 { font-size: 1.2rem; }
-            .card { padding: 15px; }
-        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; }
+        .search-bar { width: 100%; max-width: 900px; background: #2D68C4; padding: 15px; border-radius: 12px; display: flex; gap: 10px; align-items: center; color: white; margin-bottom: 10px; box-sizing: border-box; }
+        .search-bar input { width: 220px; padding: 8px; border-radius: 4px; border: none; font-size: 14px; }
+        .card { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        h2 { color: #2D68C4; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #f4f7f6; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #34495e; font-size: 13px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-orange { background: #e67e22; color: white; }
+        .btn-blue { background: #2D68C4; color: white; width: 100%; margin-top: 25px; font-size: 16px; padding: 15px; }
+        #modo-label { margin-left: auto; font-weight: bold; background: #27ae60; padding: 6px 15px; border-radius: 20px; font-size: 12px; }
+        #mensaje-exito { display: none; margin-top: 20px; padding: 20px; background-color: #ebf2ff; color: #2D68C4; border: 1px solid #2D68C4; border-radius: 8px; text-align: center; width: 100%; max-width: 900px; font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <div class="search-bar">
+        <strong>CONSULTAR/EDITAR:</strong>
+        <input type="text" id="input_buscar_doc" placeholder="Documento del Cliente">
+        <button type="button" class="btn btn-orange" onclick="buscarCliente()">Cargar Datos</button>
+        <div id="modo-label">MODO: NUEVO CLIENTE</div>
+    </div>
+
     <div class="card">
-        <h2>CREACIÓN CLIENTE ANDINA</h2>
+        <h2 id="titulo-form">REGISTRO DE CLIENTES</h2>
+        <form id="formCliente">
+            <input type="hidden" id="fila_cliente">
 
-        <form 
-            action="https://script.google.com/macros/s/AKfycbzi4MhjFAPVEYb3ekVVcvxIHM9LmIvHDbzU9RZW47vlovjDz47H6kL8_dzx_i-imxvjkQ/exec" 
-            method="POST" 
-            target="hidden_iframe" 
-            onsubmit="mostrarMensaje()">
-            
-            <div class="field">
-                <label>Tipo de Documento:</label>
-                <select name="tipo_doc">
-                    <option value="CC">CC</option>
-                    <option value="CE">CE</option>
-                    <option value="PA">PA</option>
-                    <option value="TI">TI</option>
-                </select>
+            <div class="form-grid">
+                <div class="field">
+                    <label>Tipo de Documento:</label>
+                    <select id="tipo_doc">
+                        <option value="CC">CC</option>
+                        <option value="NIT">NIT</option>
+                        <option value="CE">CE</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Número de Documento:</label>
+                    <input type="text" id="num_doc" required>
+                </div>
+                <div class="field" style="grid-column: span 2;">
+                    <label>Razón Social:</label>
+                    <input type="text" id="razon_social" required>
+                </div>
+                <div class="field">
+                    <label>Dirección:</label>
+                    <input type="text" id="direccion" required>
+                </div>
+                <div class="field">
+                    <label>Ciudad:</label>
+                    <input type="text" id="ciudad" required>
+                </div>
+                <div class="field">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="correo" required>
+                </div>
+                <div class="field">
+                    <label>Persona de Contacto:</label>
+                    <input type="text" id="contacto" required>
+                </div>
+                <div class="field">
+                    <label>Teléfono:</label>
+                    <input type="tel" id="telefono" required>
+                </div>
+                <div class="field">
+                    <label>Vendedor Asignado:</label>
+                    <input type="text" id="vendedor" required>
+                </div>
+                <div class="field" style="grid-column: span 2;">
+                    <label>¿Requiere Orden de Compra?:</label>
+                    <select id="requiere_oc">
+                        <option value="No">No</option>
+                        <option value="Si">Si</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="field">
-                <label>Número de documento:</label>
-                <input type="text" name="num_doc" required>
-            </div>
-
-            <div class="field">
-                <label>Razón social:</label>
-                <input type="text" id="razon_social" name="razon_social" required>
-            </div>
-
-            <div class="field">
-                <label>Dirección:</label>
-                <input type="text" name="direccion" required>
-            </div>
-
-            <div class="field">
-                <label>Ciudad:</label>
-                <input type="text" name="ciudad" required>
-            </div>
-
-            <div class="field">
-                <label>Correo Electrónico:</label>
-                <input type="email" name="correo" placeholder="ejemplo@correo.com" required>
-            </div>
-
-            <div class="field">
-                <label>Persona de Contacto:</label>
-                <input type="text" name="contacto" required>
-            </div>
-
-            <div class="field">
-                <label>Teléfono:</label>
-                <input type="tel" name="telefono" placeholder="Solo números" required>
-            </div>
-
-            <div class="field">
-                <label>Vendedor:</label>
-                <input type="text" name="vendedor" required>
-            </div>
-
-            <div class="field">
-                <label>¿Requiere Orden de Compra?:</label>
-                <select name="requiere_oc">
-                    <option value="Si">Si</option>
-                    <option value="No">No</option>
-                </select>
-            </div>
-
-            <button type="submit">Crear Cliente</button>
+            <button type="button" id="btn-submit" class="btn btn-blue" onclick="guardarCliente()">REGISTRAR CLIENTE</button>
         </form>
     </div>
 
     <div id="mensaje-exito"></div>
 
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
     <script>
-        function mostrarMensaje() {
-            const nombre = document.getElementById('razon_social').value;
-            const mensajeDiv = document.getElementById('mensaje-exito');
-            
-            mensajeDiv.style.display = "block";
-            mensajeDiv.innerHTML = `Se ha creado el cliente <strong>"${nombre}"</strong> correctamente en nuestra Base de Datos`;
-            
-            // Scroll suave hacia el mensaje para que el usuario lo vea en móvil
-            setTimeout(() => {
-                mensajeDiv.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxhOA0scXEarhAETOgJ0XszQo2M-5rVOkGByGXzd61NrRHfv2vHsFtPlYlAF5y6YVjuyw/exec'; // <--- PEGA TU URL AQUÍ
 
-            setTimeout(() => {
-                document.querySelector('form').reset();
-            }, 500);
+        function buscarCliente() {
+            const doc = document.getElementById('input_buscar_doc').value;
+            if(!doc) return alert("Ingrese un documento para buscar.");
+
+            const cb = 'cb_' + Date.now();
+            window[cb] = function(res) {
+                if(res.error) return alert(res.error);
+                
+                document.getElementById('modo-label').innerText = "MODO: EDITANDO CLIENTE";
+                document.getElementById('modo-label').style.background = "#e67e22";
+                document.getElementById('titulo-form').innerText = "EDITAR CLIENTE";
+                document.getElementById('btn-submit').innerText = "ACTUALIZAR DATOS";
+                document.getElementById('btn-submit').style.background = "#e67e22";
+
+                document.getElementById('fila_cliente').value = res.fila;
+                document.getElementById('tipo_doc').value = res.tipoDoc;
+                document.getElementById('num_doc').value = res.numDoc;
+                document.getElementById('razon_social').value = res.nombre;
+                document.getElementById('direccion').value = res.direccion;
+                document.getElementById('ciudad').value = res.ciudad;
+                document.getElementById('correo').value = res.correo;
+                document.getElementById('contacto').value = res.contacto;
+                document.getElementById('telefono').value = res.telefono;
+                document.getElementById('vendedor').value = res.vendedor;
+                document.getElementById('requiere_oc').value = res.requiereOC;
+                
+                delete window[cb];
+            };
+
+            const s = document.createElement('script');
+            s.src = `${scriptURL}?action=buscarClienteParaEditar&documento=${encodeURIComponent(doc)}&callback=${cb}`;
+            document.body.appendChild(s);
+        }
+
+        function guardarCliente() {
+            const btn = document.getElementById('btn-submit');
+            if(!document.getElementById('num_doc').value || !document.getElementById('razon_social').value) {
+                return alert("Complete los campos obligatorios.");
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
+
+            const fila = document.getElementById('fila_cliente').value;
+            const params = `&fila_cliente=${fila}` +
+                `&tipo_doc=${encodeURIComponent(document.getElementById('tipo_doc').value)}` +
+                `&num_doc=${encodeURIComponent(document.getElementById('num_doc').value)}` +
+                `&razon_social=${encodeURIComponent(document.getElementById('razon_social').value)}` +
+                `&direccion=${encodeURIComponent(document.getElementById('direccion').value)}` +
+                `&ciudad=${encodeURIComponent(document.getElementById('ciudad').value)}` +
+                `&correo=${encodeURIComponent(document.getElementById('correo').value)}` +
+                `&contacto=${encodeURIComponent(document.getElementById('contacto').value)}` +
+                `&telefono=${encodeURIComponent(document.getElementById('telefono').value)}` +
+                `&vendedor=${encodeURIComponent(document.getElementById('vendedor').value)}` +
+                `&requiere_oc=${encodeURIComponent(document.getElementById('requiere_oc').value)}`;
+
+            const cb = 'cb_save_' + Date.now();
+            window[cb] = function(res) {
+                if(res.status === "ok") {
+                    document.getElementById('mensaje-exito').style.display = "block";
+                    document.getElementById('mensaje-exito').innerHTML = "✅ ¡Cliente procesado con éxito!";
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    alert("Error");
+                    btn.disabled = false;
+                }
+                delete window[cb];
+            };
+
+            const s = document.createElement('script');
+            s.src = `${scriptURL}?action=guardarCliente${params}&callback=${cb}`;
+            document.body.appendChild(s);
         }
     </script>
-
 </body>
 </html>
