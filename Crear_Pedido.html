@@ -2,66 +2,70 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pedidos ANDINA - Completo</title>
+    <title>Sistema de Gestión de Pedidos ANDINA</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; }
-        .card { width: 100%; max-width: 1300px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #2D68C4; text-align: center; margin-bottom: 5px; }
-        .consecutivo { color: #7f8c8d; text-align: center; font-weight: bold; margin-bottom: 20px; }
-        .header-grid { display: grid; grid-template-columns: 1fr 2fr 1.2fr; gap: 20px; align-items: start; margin-bottom: 20px; border-bottom: 2px solid #f4f7f6; padding-bottom: 20px; }
+        .card { width: 100%; max-width: 1300px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 10px; }
+        .search-bar { width: 100%; max-width: 1300px; background: #2D68C4; padding: 15px; border-radius: 12px; display: flex; gap: 10px; align-items: center; color: white; margin-bottom: 10px; }
+        
+        /* Ajuste de la cuadrícula del encabezado */
+        .header-grid { display: grid; grid-template-columns: 1fr 2fr 1.2fr; gap: 20px; border-bottom: 2px solid #f4f7f6; padding-bottom: 20px; margin-bottom: 20px; align-items: start; }
+        
         label { display: block; margin-bottom: 4px; font-weight: bold; color: #34495e; font-size: 12px; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #dcdde1; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
-        #info-cliente { display: none; background: #ebf2ff; padding: 12px; border-radius: 8px; border: 1px solid #2D68C4; font-size: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #dcdde1; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
         .item-row { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #dee2e6; position: relative; display: flex; flex-direction: column; gap: 10px; }
         .row-group { display: grid; gap: 10px; align-items: end; }
         .grid-f1 { grid-template-columns: 1.2fr 2fr 0.6fr 1fr 0.8fr 0.8fr; }
         .grid-f2 { grid-template-columns: 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 1fr; border-top: 1px dashed #ccc; padding-top: 10px; }
-        .btn { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 10px; color: white; transition: 0.3s; }
-        .btn-blue { background: #2D68C4; width: 100%; margin-top: 20px; font-size: 16px; }
-        .btn-add { background: #27ae60; width: 220px; margin: 10px 0; }
-        .btn-remove { background: #e74c3c; position: absolute; top: 5px; right: 5px; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .total-box { margin-top: 10px; padding: 10px 20px; background: #f8f9fa; border-radius: 8px; text-align: right; border: 1px solid #ddd; }
-        .total-box div { margin: 5px 0; font-size: 1.1rem; color: #34495e; }
-        .final-total { font-size: 1.6rem !important; color: #2D68C4 !important; font-weight: bold; border-top: 2px solid #2D68C4; padding-top: 5px; }
+        .btn { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 10px; transition: 0.3s; }
+        .btn-blue { background: #2D68C4; color: white; width: 100%; margin-top: 20px; font-size: 16px; }
+        .btn-orange { background: #e67e22; color: white; }
+        .btn-add { background: #27ae60; color: white; width: 220px; margin: 10px 0; }
+        .btn-remove { background: #e74c3c; color: white; position: absolute; top: 5px; right: 5px; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .total-box { margin-top: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: right; border: 1px solid #ddd; }
+        .final-total { font-size: 1.6rem; color: #2D68C4; font-weight: bold; border-top: 2px solid #2D68C4; }
+        .oc-requerida { border: 2px solid #e74c3c !important; background: #fff5f5; }
     </style>
 </head>
 <body>
 
-    <h2>CREACIÓN DE PEDIDO</h2>
-    <div class="consecutivo">Pedido N° <span id="n-pedido">...</span></div>
+    <div class="search-bar">
+        <strong>BUSCAR PEDIDO:</strong>
+        <input type="number" id="input_buscar_id" placeholder="Ingrese ID de Pedido" style="width: 200px;">
+        <button type="button" class="btn btn-orange" onclick="buscarPedidoParaEditar()">Cargar para Editar</button>
+        <div id="modo-label" style="margin-left: auto; font-weight: bold; background: #27ae60; padding: 5px 15px; border-radius: 20px;">MODO: NUEVO PEDIDO</div>
+    </div>
 
     <div class="card">
+        <h2 id="titulo-form" style="color:#2D68C4; text-align:center;">NUEVO PEDIDO N° <span id="n-pedido">...</span></h2>
         <form id="formPedido">
             <div class="header-grid">
                 <div>
                     <label>Documento Cliente:</label>
                     <input type="number" id="doc_cliente" placeholder="NIT / CC">
-                    <button type="button" class="btn" style="background:#2D68C4; width:100%; margin-top:8px;" onclick="buscarCliente()">Consultar Cliente</button>
+                    <button type="button" class="btn" style="background:#2D68C4; color:white; width:100%; margin-top:8px;" onclick="buscarCliente()">Consultar Cliente</button>
                 </div>
-                <div id="info-cliente" style="display: none;">
-                    <div style="grid-column: span 2;"><strong>Razón Social:</strong> <span id="res-nombre"></span></div>
-                    <div><strong>Tipo Doc:</strong> <span id="res-tipo"></span></div>
-                    <div><strong>Ciudad:</strong> <span id="res-ciudad"></span></div>
-                    <div><strong>Teléfono:</strong> <span id="res-tel"></span></div>
-                    <div><strong>Requiere OC:</strong> <span id="res-oc-req"></span></div>
-                    <div style="grid-column: span 2;"><strong>Correo:</strong> <span id="res-correo"></span></div>
-                    <input type="hidden" id="razon_social_hidden">
+
+                <div>
+                    <div id="info-cliente" style="display: none; background: #ebf2ff; padding: 10px; border-radius: 8px; border: 1px solid #2D68C4; font-size: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <div style="grid-column: span 2;"><strong>Razón Social:</strong> <span id="res-nombre"></span></div>
+                        <div><strong>Ciudad:</strong> <span id="res-ciudad"></span></div>
+                        <div><strong>Requiere OC:</strong> <span id="res-oc-req"></span></div>
+                        <div style="grid-column: span 2;"><strong>Correo:</strong> <span id="res-correo"></span></div>
+                        <input type="hidden" id="razon_social_hidden">
+                    </div>
                 </div>
-                <div id="placeholder-cliente" style="text-align:center; color:#999; padding-top:20px;">Esperando consulta...</div>
+
                 <div>
                     <label>Orden de Compra:</label>
                     <input type="text" id="input_oc" placeholder="Número de OC" style="margin-bottom:10px;">
                     <label>Impuesto:</label>
-                    <select id="select_impuesto" onchange="calcularTotales()"><option value="No Aplica">No Aplica</option></select>
+                    <select id="select_impuesto" onchange="calcularTotales()"></select>
                 </div>
             </div>
 
-            <label style="font-size: 15px; color: #2D68C4; margin-bottom: 15px;">Detalle de Servicios</label>
             <div id="lista-servicios"></div>
-            
-            <div style="text-align: center;">
-                <button type="button" class="btn btn-add" id="btnAddRow" onclick="agregarFila()" disabled>+ Agregar Servicio</button>
-            </div>
+            <div style="text-align: center;"><button type="button" class="btn btn-add" id="btnAddRow" onclick="agregarFila()" disabled>+ Agregar Servicio</button></div>
 
             <div class="total-box">
                 <div>SUBTOTAL: <span id="subtotal-display">$ 0</span></div>
@@ -74,30 +78,36 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxjKFJxFsR6GwPL1CFGZ9ipG7XUqv5ZuA-FCKhmgF9jxe1KxsWBjtAujLAUnTipOtQqQg/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyBDhvXN0ahOHoxW-rYX3amBhGbyyFfIRb57Ifjty0p5Q6yTqU7cXw2SHAfQhL0Q8bKmQ/exec'; 
         let h_servicios = "", h_medidas = "", h_tipos = "", h_durezas = "";
         let valSubtotal = 0, valImpuesto = 0, valTotalFinal = 0;
+        let clienteRequiereOC = false;
+        let modoActual = "nuevo"; 
+        let idPedidoActual = null;
 
         window.onload = () => {
             llamarGoogle('getUltimo', '', 'mostrarConsecutivo');
             llamarGoogle('getListas', '', 'cargarListas');
         };
 
-        function mostrarConsecutivo(n) { document.getElementById('n-pedido').innerText = n; }
-
-        function cargarListas(res) {
-            if (res && !res.error) {
-                h_servicios = res.servicios.map(s => `<option value="${s}">${s}</option>`).join('');
-                h_medidas = res.medidas.map(m => `<option value="${m}">${m}</option>`).join('');
-                h_tipos = res.tipos.map(t => `<option value="${t}">${t}</option>`).join('');
-                h_durezas = res.durezas.map(d => `<option value="${d}">${d}</option>`).join('');
-                document.getElementById('select_impuesto').innerHTML = res.impuestos.map(i => `<option value="${i}">${i}</option>`).join('');
+        function mostrarConsecutivo(n) { 
+            if(modoActual === "nuevo") {
+                idPedidoActual = n;
+                document.getElementById('n-pedido').innerText = n; 
             }
-            document.getElementById('btnAddRow').disabled = false;
-            agregarFila(); 
         }
 
-        function agregarFila() {
+        function cargarListas(res) {
+            h_servicios = res.servicios.map(s => `<option value="${s}">${s}</option>`).join('');
+            h_medidas = res.medidas.map(m => `<option value="${m}">${m}</option>`).join('');
+            h_tipos = res.tipos.map(t => `<option value="${t}">${t}</option>`).join('');
+            h_durezas = res.durezas.map(d => `<option value="${d}">${d}</option>`).join('');
+            document.getElementById('select_impuesto').innerHTML = res.impuestos.map(i => `<option value="${i}">${i}</option>`).join('');
+            document.getElementById('btnAddRow').disabled = false;
+            if(modoActual === "nuevo") agregarFila(); 
+        }
+
+        function agregarFila(datos = null) {
             const div = document.createElement('div');
             div.className = 'item-row';
             div.innerHTML = `
@@ -120,6 +130,47 @@
                     <div><label>Subtotal Ítem</label><input type="text" class="srv-total-fila" readonly value="$ 0"></div>
                 </div>`;
             document.getElementById('lista-servicios').appendChild(div);
+
+            if(datos) {
+                const f = div;
+                f.querySelector('.srv-nombre').value = datos[1];
+                f.querySelector('.srv-desc').value = datos[2];
+                f.querySelector('.srv-cant').value = datos[3];
+                f.querySelector('.srv-tipo').value = datos[4];
+                f.querySelector('.srv-eje').value = datos[5];
+                f.querySelector('.srv-medida-eje').value = datos[6];
+                f.querySelector('.srv-dim').value = datos[7];
+                f.querySelector('.srv-medida-dim').value = datos[8];
+                f.querySelector('.srv-long').value = datos[9];
+                f.querySelector('.srv-medida-long').value = datos[10];
+                f.querySelector('.srv-dureza').value = datos[11];
+                f.querySelector('.srv-valor').value = datos[12];
+            }
+        }
+
+        function buscarPedidoParaEditar() {
+            const id = document.getElementById('input_buscar_id').value;
+            if(!id) return alert("Ingrese un ID");
+            llamarGoogle('buscarPedido', `&idPedido=${id}`, 'cargarPedidoForm');
+        }
+
+        function cargarPedidoForm(res) {
+            if(res.error) return alert(res.error);
+            modoActual = "editar";
+            idPedidoActual = res.cabecera[0];
+            document.getElementById('modo-label').innerText = "MODO: EDITANDO PEDIDO #" + idPedidoActual;
+            document.getElementById('modo-label').style.background = "#e67e22";
+            document.getElementById('n-pedido').innerText = idPedidoActual;
+            document.getElementById('btnRegistrar').innerText = "GUARDAR CAMBIOS EN PEDIDO";
+
+            document.getElementById('doc_cliente').value = res.cabecera[2].toString().replace("'","");
+            buscarCliente(); 
+            document.getElementById('input_oc').value = res.cabecera[4];
+            document.getElementById('select_impuesto').value = res.cabecera[6];
+
+            document.getElementById('lista-servicios').innerHTML = "";
+            res.detalles.forEach(d => agregarFila(d));
+            setTimeout(calcularTotales, 500);
         }
 
         function calcularTotales() {
@@ -129,16 +180,10 @@
                 f.querySelector('.srv-total-fila').value = "$ " + sub.toLocaleString('es-CO');
                 valSubtotal += sub;
             });
-
             const impSel = document.getElementById('select_impuesto').value;
-            let porcentaje = 0;
-            if (impSel !== "No Aplica") {
-                porcentaje = parseFloat(impSel.replace('%','')) / 100 || 0;
-            }
-            
+            let porcentaje = (impSel !== "No Aplica" && impSel !== "") ? (parseFloat(impSel.replace('%','')) / 100 || 0) : 0;
             valImpuesto = valSubtotal * porcentaje;
             valTotalFinal = valSubtotal + valImpuesto;
-
             document.getElementById('subtotal-display').innerText = "$ " + valSubtotal.toLocaleString('es-CO');
             document.getElementById('impuesto-display').innerText = "$ " + valImpuesto.toLocaleString('es-CO');
             document.getElementById('total-final-display').innerText = "$ " + valTotalFinal.toLocaleString('es-CO');
@@ -151,42 +196,43 @@
 
         function procesarCliente(d) {
             if (d && d.nombre) {
-                document.getElementById('placeholder-cliente').style.display = 'none';
                 document.getElementById('info-cliente').style.display = 'grid';
                 document.getElementById('res-nombre').innerText = d.nombre;
-                document.getElementById('res-tipo').innerText = d.tipoDoc;
                 document.getElementById('res-ciudad').innerText = d.ciudad;
-                document.getElementById('res-tel').innerText = d.telefono;
-                document.getElementById('res-correo').innerText = d.correo;
                 document.getElementById('res-oc-req').innerText = d.requiereOC;
+                document.getElementById('res-correo').innerText = d.correo;
                 document.getElementById('razon_social_hidden').value = d.nombre;
-            } else { alert("Cliente no encontrado"); }
+                clienteRequiereOC = d.requiereOC.toUpperCase().includes("SI");
+            } else {
+                // AQUÍ SE INFORMA SI NO EXISTE
+                alert("⚠️ El cliente con documento " + document.getElementById('doc_cliente').value + " no existe en la base de datos.");
+                document.getElementById('info-cliente').style.display = 'none';
+                document.getElementById('razon_social_hidden').value = "";
+            }
         }
 
         function enviarPedidoFinal() {
             const cliente = document.getElementById('razon_social_hidden').value;
-            if(!cliente) return alert("Consulte un cliente primero.");
+            const ocValue = document.getElementById('input_oc').value.trim();
+            if(!cliente) return alert("Consulte un cliente.");
+            if(clienteRequiereOC && ocValue === "") return alert("OC Obligatoria.");
 
             let itemsStr = "";
             document.querySelectorAll('.item-row').forEach(f => {
                 const s = f.querySelector('.srv-nombre').value;
                 if(s && f.querySelector('.srv-cant').value > 0) {
-                    const filaData = [s, f.querySelector('.srv-desc').value, f.querySelector('.srv-cant').value, f.querySelector('.srv-tipo').value, f.querySelector('.srv-eje').value, f.querySelector('.srv-medida-eje').value, f.querySelector('.srv-dim').value, f.querySelector('.srv-medida-dim').value, f.querySelector('.srv-long').value, f.querySelector('.srv-medida-long').value, f.querySelector('.srv-dureza').value, f.querySelector('.srv-valor').value];
-                    itemsStr += filaData.join(',') + '|';
+                    const d = [s, f.querySelector('.srv-desc').value, f.querySelector('.srv-cant').value, f.querySelector('.srv-tipo').value, f.querySelector('.srv-eje').value, f.querySelector('.srv-medida-eje').value, f.querySelector('.srv-dim').value, f.querySelector('.srv-medida-dim').value, f.querySelector('.srv-long').value, f.querySelector('.srv-medida-long').value, f.querySelector('.srv-dureza').value, f.querySelector('.srv-valor').value];
+                    itemsStr += d.join(',') + '|';
                 }
             });
 
-            if(!itemsStr) return alert("Agregue servicios.");
+            const params = `&modo=${modoActual}&idPedido=${idPedidoActual}&documento=${document.getElementById('doc_cliente').value}&cliente=${encodeURIComponent(cliente)}&orden_compra=${encodeURIComponent(ocValue)}&servicios_consolidado=${encodeURIComponent(itemsStr)}&subtotal=${valSubtotal}&valorImpuesto=${valImpuesto}&pctImpuesto=${encodeURIComponent(document.getElementById('select_impuesto').value)}&totalFinal=${valTotalFinal}`;
             
-            const btn = document.getElementById('btnRegistrar');
-            btn.disabled = true; btn.innerText = "Registrando...";
-            
-            const params = `&documento=${document.getElementById('doc_cliente').value}&cliente=${encodeURIComponent(cliente)}&orden_compra=${encodeURIComponent(document.getElementById('input_oc').value)}&servicios_consolidado=${encodeURIComponent(itemsStr)}&subtotal=${valSubtotal}&valorImpuesto=${valImpuesto}&pctImpuesto=${encodeURIComponent(document.getElementById('select_impuesto').value)}&totalFinal=${valTotalFinal}`;
-            
+            document.getElementById('btnRegistrar').disabled = true;
             llamarGoogle('registrar', params, 'confirmar');
         }
 
-        function confirmar() { alert("✅ Pedido registrado con éxito."); location.reload(); }
+        function confirmar() { alert("Operación exitosa."); location.reload(); }
 
         function llamarGoogle(action, extra, callback) {
             const script = document.createElement('script');
