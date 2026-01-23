@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Control de Procesos - ANDINA</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; }
+        .search-card { background: #2D68C4; color: white; padding: 20px; border-radius: 12px; display: flex; gap: 10px; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
+        .servicio-block { border-left: 5px solid #2D68C4; background: #fafafa; padding: 15px; margin-bottom: 20px; border-radius: 0 8px 8px 0; page-break-inside: avoid; }
+        .servicio-finalizado { border-left-color: #27ae60; background: #f0fff4; }
+        .timeline { margin: 10px 0; font-size: 0.85em; color: #555; border-top: 1px solid #eee; padding-top: 10px; }
+        .timeline-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #eee; }
+        .estado-tag { background: #2D68C4; color: white; padding: 3px 10px; border-radius: 15px; font-weight: bold; }
+        .tag-final { background: #27ae60; }
+        .btn { border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-next { background: #27ae60; color: white; }
+        .btn-back { background: #e74c3c; color: white; }
+        .btn-print { background: #576574; color: white; position: absolute; top: 25px; right: 25px; }
+        textarea { padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 100%; box-sizing: border-box; font-family: inherit; margin-top: 5px; }
+        
+        /* ESTILOS PARA IMPRESIÓN */
+        @media print {
+            .search-card, .btn, textarea, label { display: none !important; }
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: 1px solid #eee; width: 100%; }
+            .container { max-width: 100%; }
+            .servicio-block { border: 1px solid #ccc; margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="search-card">
+        <strong>BUSCAR PEDIDO:</strong>
+        <input type="number" id="id_busqueda" placeholder="ID..." style="width: 120px; padding: 8px; border-radius: 4px; border: none;">
+        <button class="btn" style="background: white; color: #2D68C4;" onclick="consultarPedido()">Consultar</button>
+    </div>
+
+    <div id="resultado" style="display:none;">
+        <div class="card">
+            <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir Resumen</button>
+            <h2 id="header-pedido" style="margin:0; color:#2D68C4;">Pedido #...</h2>
+            <p id="header-cliente" style="color: #666; margin-top: 10px; font-size: 1.1em;"></p>
+            <p id="header-fecha" style="font-size: 0.9em; color: #999;"></p>
+        </div>
+
+        <div id="lista-servicios"></div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzXmulx6jzLIEgWmmyjIsvBmWOWCK7tK3OPN0gAWgZsO6sGK3Pba8zy0A4XNwlWlzHqLw/exec'; 
+    let estadosGlobales = [];
+
+   window.onload = () => {
+        llamarGoogle('getListas', '', 'configInicial');
+        
+        // --- NUEVO: Capturar ID de la URL ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const idURL = urlParams.get('idPedido');
+        if (idURL) {
+            document.getElementById('id_busqueda').value = idURL;
+            // Esperamos un segundo a que carguen las listas antes de consultar
+            setTimeout(consultarPedido, 1000);
+        }
+    };
+
+    function configInicial(res) {
+        estadosGlobales = res.estados;
+    }
+
+    function consultarPedido() {
+        const id = document.getElementById('id_busqueda').value;
+        if(!id) return;
+        llamarGoogle('buscarPedidoFull', `&idPedido=${id}`, 'renderizar');
+    }
+
+    function renderizar(res) {
+        if(res.error) return alert(res.error);
+        
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('header-pedido').innerText = "RESUMEN DE PROCESOS - PEDIDO #" + res.cabecera[0];
+        document.getElementById('header-cliente').innerText = "CLIENTE: " + res.cabecera[3];
+        document.getElementById('header-fecha').innerText = "Fecha de Registro: " + new Date(res.cabecera[1]).toLocaleDateString();
+
+        const lista = document.getElementById('lista-servicios');
+        lista.innerHTML = "";
+
+        res.detalles.forEach((det, index) => {
+            const historialServicio = res.historial.filter(h => h[1] === det[1]);
+            const ultimoEstado = historialServicio.length > 0 ? historialServicio[historialServicio.length - 1][3] : estadosGlobales[0];
+            const idxEstado = estadosGlobales.indexOf(ultimoEstado);
+            const esFinal = (idxEstado === estadosGlobales.length - 1);
+
+            let timelineHtml = historialServicio.map(h => `
+                <div class="timeline-item">
+                    <span><b>${h[3]}:</b> ${h[4]}</span>
+                    <span style="color:#999; font-style: italic;">${new Date(h[2]).toLocaleString()}</span>
+                </div>
+            `).reverse().join('');
+
+            const div = document.createElement('div');
+            div.className = `servicio-block ${esFinal ? 'servicio-finalizado' : ''}`;
+            
+            // Lógica de botones condicionada
+            let btnAnterior = idxEstado > 0 
+                ? `<button class="btn btn-back" onclick="actualizar('${det[1]}', ${idxEstado-1}, ${index})">Anterior</button>` 
+                : `<span></span>`;
+
+            let btnSiguiente = !esFinal 
+                ? `<button class="btn btn-next" onclick="actualizar('${det[1]}', ${idxEstado+1}, ${index})">Pasar a ${estadosGlobales[idxEstado+1]}</button>` 
+                : `<b style="color:#27ae60;">✓ PROCESO FINALIZADO</b>`;
+
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                    <h3 style="margin:0; color:#2D68C4;">${det[1]}</h3>
+                    <span class="estado-tag ${esFinal ? 'tag-final' : ''}">${ultimoEstado}</span>
+                </div>
+                
+                <div class="timeline">
+                    <strong>Historial de movimientos:</strong>
+                    ${timelineHtml || '<div style="color:gray;">Pendiente de iniciar.</div>'}
+                </div>
+
+                <div style="margin-top:15px;" class="no-print">
+                    <label style="font-size:11px; font-weight:bold; color:#2D68C4;">NOTAS PARA EL PRÓXIMO CAMBIO:</label>
+                    <textarea id="obs_${index}" placeholder="Escriba aquí observaciones..."></textarea>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                        ${btnAnterior}
+                        ${btnSiguiente}
+                    </div>
+                </div>
+            `;
+            lista.appendChild(div);
+        });
+    }
+
+    function actualizar(nomServicio, nuevoIdx, inputIdx) {
+        const idPed = document.getElementById('id_busqueda').value;
+        const nuevoEstado = estadosGlobales[nuevoIdx];
+        const obs = document.getElementById(`obs_${inputIdx}`).value;
+
+        if(!confirm(`¿Cambiar "${nomServicio}" al estado "${nuevoEstado}"?`)) return;
+
+        llamarGoogle('cambiarEstado', `&idPedido=${idPed}&servicio=${encodeURIComponent(nomServicio)}&nuevoEstado=${encodeURIComponent(nuevoEstado)}&observaciones=${encodeURIComponent(obs)}`, 'recargar');
+    }
+
+    function recargar() {
+        alert("Estado actualizado con éxito.");
+        consultarPedido();
+    }
+
+    function llamarGoogle(action, extra, callback) {
+        const script = document.createElement('script');
+        script.src = `${scriptURL}?action=${action}&callback=${callback}${extra}&v=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+</script>
+</body>
+</html>

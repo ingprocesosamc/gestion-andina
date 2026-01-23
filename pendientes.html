@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Producción - ANDINA</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 1300px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #2D68C4; padding-bottom: 15px; margin-bottom: 20px; }
+        .filters { display: flex; gap: 15px; margin-bottom: 20px; background: #f0f4f8; padding: 15px; border-radius: 8px; align-items: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: #2D68C4; color: white; padding: 12px; text-align: left; font-size: 0.85em; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        .dias-badge { padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; display: inline-block; min-width: 60px; text-align: center; }
+        .bg-ok { background-color: #27ae60; } /* Verde */
+        .bg-warn { background-color: #f39c12; } /* Naranja */
+        .bg-alert { background-color: #e74c3c; animation: pulse 2s infinite; } /* Rojo */
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .btn-gestion { background: #2D68C4; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="header-flex">
+            <h1 style="margin:0; color:#2D68C4;">📊 Control de Tiempos de Producción</h1>
+            <button class="btn-gestion" style="background:#555;" onclick="location.reload()">🔄 Refrescar Datos</button>
+        </div>
+
+        <div class="filters">
+            <strong>🔍 Búsqueda:</strong>
+            <input type="text" id="filtro_general" placeholder="Cliente o ID Pedido..." onkeyup="filtrar()">
+            <span id="contador" style="margin-left:auto; font-weight:bold; color:#2D68C4;"></span>
+        </div>
+        
+        <table id="tabla-pendientes">
+            <thead>
+                <tr>
+                    <th>Días</th>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Servicio / Proceso</th>
+                    <th>Estado Actual</th>
+                    <th>Última Actividad</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpo-tabla"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxj7piw7Jxp6pK-KQFTNPZch7xIutXrXm4VE2VlKTVtBY3cmVdiushJE8-qdzPetKJETA/exec'; 
+    const urlGestion = 'https://ingprocesosamc.github.io/gestion-andina/estados.html'; 
+    let datosLocales = [];
+
+    window.onload = () => llamarGoogle('getTodosPendientes', '', 'mostrarTabla');
+
+    function mostrarTabla(data) {
+        datosLocales = data;
+        renderizar(data);
+    }
+
+    function renderizar(data) {
+        const cuerpo = document.getElementById('cuerpo-tabla');
+        cuerpo.innerHTML = "";
+        document.getElementById('contador').innerText = `Pendientes: ${data.length}`;
+
+        data.forEach(item => {
+            // Calcular días transcurridos desde el inicio
+            const fInicio = new Date(item.inicio);
+            const hoy = new Date();
+            const diferencia = Math.floor((hoy - fInicio) / (1000 * 60 * 60 * 24));
+            
+            let claseColor = "bg-ok";
+            if (diferencia >= 2 && diferencia <= 3) claseColor = "bg-warn";
+            if (diferencia > 3) claseColor = "bg-alert";
+
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td><span class="dias-badge ${claseColor}">${diferencia} d</span></td>
+                <td><b>#${item.id}</b></td>
+                <td>${item.cliente}</td>
+                <td><b>${item.servicio}</b></td>
+                <td><span style="color:#2D68C4; font-weight:bold;">● ${item.estado}</span></td>
+                <td style="font-size:0.8em; color:#777;">${new Date(item.ultimaAct).toLocaleString()}</td>
+                <td>
+                    <a href="${urlGestion}?idPedido=${item.id}" target="_blank" class="btn-gestion">Gestionar ⚙️</a>
+                </td>
+            `;
+            cuerpo.appendChild(fila);
+        });
+    }
+
+    function filtrar() {
+        const val = document.getElementById('filtro_general').value.toLowerCase();
+        const filtrados = datosLocales.filter(i => 
+            i.cliente.toLowerCase().includes(val) || i.id.toString().includes(val)
+        );
+        renderizar(filtrados);
+    }
+
+    function llamarGoogle(action, extra, callback) {
+        const script = document.createElement('script');
+        script.src = `${scriptURL}?action=${action}&callback=${callback}${extra}&v=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+</script>
+</body>
+</html>
